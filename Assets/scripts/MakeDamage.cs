@@ -4,11 +4,18 @@ using UnityEngine;
 
 public class MakeDamage : MonoBehaviour
 {
+    public float damage = 7;
+    public string attackedTag = "Enemy";
+
     private void OnParticleCollision(GameObject other)
     {
-        if (other.CompareTag("Enemy"))
+        Debug.Log(other.ToString());
+        if (other.CompareTag(attackedTag))
         {
-            Destroy(other);
+
+            EnemyLife hitted = other.GetComponent<EnemyLife>();
+            Debug.Log(hitted.ToString());
+            hitted.takeDamage(damage);
         }
     }
 }
