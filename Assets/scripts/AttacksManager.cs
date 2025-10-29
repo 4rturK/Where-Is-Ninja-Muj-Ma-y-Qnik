@@ -16,8 +16,6 @@ public class BasicAttack
             animator.SetTrigger("Melee1");
 
             particle.Play();
-
-            //animator.ResetTrigger("Melee1");
         }
     }
 
@@ -49,12 +47,14 @@ public class ContinuousAttack : BasicAttack
     {
         if (Input.GetKey(keyCode))
         {
+            animator.SetBool("CastingContinuousSpell1", true);
             particle.Play();
         }
         else
         {
             if (particle.isPlaying)
             {
+                animator.SetBool("CastingContinuousSpell1", false);
                 particle.Stop();
             }
         }

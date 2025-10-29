@@ -9,6 +9,8 @@ public class PlayerMovement3D : MonoBehaviour
     public float deceleration = 8f;
     public bool rotateTowardsMoveDirection = true;
 
+    public Animator animator;
+
     private Rigidbody rb;
     private Vector3 inputDir;
     private Vector3 velocity;
@@ -23,6 +25,25 @@ public class PlayerMovement3D : MonoBehaviour
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
         inputDir = new Vector3(h, 0f, v).normalized;
+
+        Vector3 localVel = transform.InverseTransformDirection(velocity);
+        Vector3 target = localVel.normalized * Mathf.Clamp01(localVel.magnitude / moveSpeed);
+
+        float currentX = animator.GetFloat("MoveX");
+        float currentZ = animator.GetFloat("MoveZ");
+
+        float smooth = 10f;
+        float newX = Mathf.Lerp(currentX, target.x, Time.deltaTime * smooth);
+        float newZ = Mathf.Lerp(currentZ, target.z, Time.deltaTime * smooth);
+
+        if (velocity.magnitude < 0.1f)
+        {
+            newX = 0f;
+            newZ = 0f;
+        }
+
+        animator.SetFloat("MoveX", newX);
+        animator.SetFloat("MoveZ", newZ);
     }
 
     private void FixedUpdate()
@@ -41,6 +62,8 @@ public class PlayerMovement3D : MonoBehaviour
             Quaternion targetRot = Quaternion.LookRotation(velocity.normalized, Vector3.up);
             rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * 10f));
         }
+
+
     }
 
 }
