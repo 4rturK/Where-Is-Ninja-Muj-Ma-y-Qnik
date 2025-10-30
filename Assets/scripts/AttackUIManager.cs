@@ -17,12 +17,15 @@ public class AttackUIManager : MonoBehaviour
 
     void Start()
     {
-        var attackNames = attacksManager.availableAttacks.Select(a => a.name).ToList();
+        var attackNames = attacksManager.availableAttacks
+            .Select(a => a.name)
+            .Concat(attacksManager.availableInstances.Select(a => a.name))
+            .ToList();
 
-        SetupDropdown(leftDropdown, attackNames, attacksManager.leftAttackParticle);
-        SetupDropdown(rightDropdown, attackNames, attacksManager.rightAttackParticle);
-        SetupDropdown(add1Dropdown, attackNames, attacksManager.add1AttackParticle);
-        SetupDropdown(add2Dropdown, attackNames, attacksManager.add2AttackParticle);
+        SetupDropdown(leftDropdown, attackNames, attacksManager.leftAttack);
+        SetupDropdown(rightDropdown, attackNames, attacksManager.rightAttack);
+        SetupDropdown(add1Dropdown, attackNames, attacksManager.add1Attack);
+        SetupDropdown(add2Dropdown, attackNames, attacksManager.add2Attack);
 
         leftDropdown.onValueChanged.AddListener(OnLeftChanged);
         rightDropdown.onValueChanged.AddListener(OnRightChanged);
@@ -40,7 +43,7 @@ public class AttackUIManager : MonoBehaviour
         }
     }
 
-    void SetupDropdown(TMP_Dropdown dropdown, System.Collections.Generic.List<string> names, ParticleSystem current)
+    void SetupDropdown(TMP_Dropdown dropdown, System.Collections.Generic.List<string> names, Object current)
     {
         dropdown.ClearOptions();
         dropdown.AddOptions(names);
@@ -52,25 +55,63 @@ public class AttackUIManager : MonoBehaviour
 
     public void OnLeftChanged(int index)
     {
-        attacksManager.leftAttackParticle = attacksManager.availableAttacks[index];
+        string selectedName = leftDropdown.options[index].text;
+
+        var particle = attacksManager.availableAttacks.FirstOrDefault(a => a.name == selectedName);
+        var prefab = attacksManager.availableInstances.FirstOrDefault(a => a.name == selectedName);
+
+        if (particle != null)
+            attacksManager.leftAttack = particle;
+        else if (prefab != null)
+            attacksManager.leftAttack = prefab;
+        else
+            attacksManager.leftAttack = null;
+
         attacksManager.ApplySelectedAttacks();
     }
 
     public void OnRightChanged(int index)
     {
-        attacksManager.rightAttackParticle = attacksManager.availableAttacks[index];
+        string selectedName = leftDropdown.options[index].text;
+
+        var particle = attacksManager.availableAttacks.FirstOrDefault(a => a.name == selectedName);
+        var prefab = attacksManager.availableInstances.FirstOrDefault(a => a.name == selectedName);
+        if (particle != null)
+            attacksManager.rightAttack = particle;
+        else if (prefab != null)
+            attacksManager.rightAttack = prefab;
+        else
+            attacksManager.rightAttack = null;
         attacksManager.ApplySelectedAttacks();
     }
 
     public void OnAdd1Changed(int index)
     {
-        attacksManager.add1AttackParticle = attacksManager.availableAttacks[index];
+        string selectedName = leftDropdown.options[index].text;
+
+        var particle = attacksManager.availableAttacks.FirstOrDefault(a => a.name == selectedName);
+        var prefab = attacksManager.availableInstances.FirstOrDefault(a => a.name == selectedName);
+        if (particle != null)
+            attacksManager.add1Attack = particle;
+        else if (prefab != null)
+            attacksManager.add1Attack = prefab;
+        else
+            attacksManager.add1Attack = null;
         attacksManager.ApplySelectedAttacks();
     }
 
     public void OnAdd2Changed(int index)
     {
-        attacksManager.add2AttackParticle = attacksManager.availableAttacks[index];
+        string selectedName = leftDropdown.options[index].text;
+
+        var particle = attacksManager.availableAttacks.FirstOrDefault(a => a.name == selectedName);
+        var prefab = attacksManager.availableInstances.FirstOrDefault(a => a.name == selectedName);
+        if (particle != null)
+            attacksManager.add2Attack = particle;
+        else if (prefab != null)
+            attacksManager.add2Attack = prefab;
+        else
+            attacksManager.add2Attack = null;
         attacksManager.ApplySelectedAttacks();
     }
 }

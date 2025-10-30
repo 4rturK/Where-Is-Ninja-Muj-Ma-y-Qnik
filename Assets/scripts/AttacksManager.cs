@@ -31,18 +31,6 @@ public class BasicAttack
 
 public class ContinuousAttack : BasicAttack
 {
-    //static readonly KeyCode[] breakKeys = new KeyCode[]
-    //{
-    //    KeyCode.W,
-    //    KeyCode.A,
-    //    KeyCode.S,
-    //    KeyCode.D,
-    //    KeyCode.Mouse0,
-    //    KeyCode.Mouse1,
-    //    KeyCode.Mouse3,
-    //    KeyCode.Mouse4
-    //};
-
     public override void onUpdateFunc()
     {
         if (Input.GetKey(keyCode))
@@ -64,18 +52,43 @@ public class ContinuousAttack : BasicAttack
         : base(particle, key, animator) { }
 }
 
+public class BuildCast : BasicAttack 
+{
+    private GameObject gameobjectPrefab;
+    public override void onUpdateFunc()
+    {
+        if (Input.GetKeyDown(keyCode))
+        {
+            animator.SetBool("CastingContinuousSpell1", true);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            int groundMask = LayerMask.GetMask("Ground");
+            if (Physics.Raycast(ray, out hit, 100f, groundMask))
+            {
+                Vector3 target = hit.point;
+                UnityEngine.Object.Instantiate(gameobjectPrefab, target, animator.transform.rotation);
+            }
+        }
+    }
+
+    public BuildCast(KeyCode key, Animator animator, GameObject objectToInstance)
+        : base(null, key, animator) { gameobjectPrefab = objectToInstance; }
+}
+
 public class AttacksManager : MonoBehaviour 
 {
     private string[] continuousAttacks = { "Fire" };
+    private string[] instanceActions = { "Build Wall" };
 
-    [Header("Available Particles")]
+    [Header("Available Skills")]
     public List<ParticleSystem> availableAttacks = new List<ParticleSystem>();
+    public List<GameObject> availableInstances = new List<GameObject>();
 
     [Header("Assigned Attacks")]
-    public ParticleSystem leftAttackParticle;
-    public ParticleSystem rightAttackParticle;
-    public ParticleSystem add1AttackParticle;
-    public ParticleSystem add2AttackParticle;
+    public Object leftAttack;
+    public Object rightAttack;
+    public Object add1Attack;
+    public Object add2Attack;
 
     BasicAttack leftClickAttack;
     BasicAttack rightClickAttack;
@@ -86,9 +99,8 @@ public class AttacksManager : MonoBehaviour
 
     public Animator animator;
 
-    void Start()
+    void Awake()
     {
-
         ApplySelectedAttacks();
     }
     void Update()
@@ -108,11 +120,43 @@ public class AttacksManager : MonoBehaviour
 
     public void ApplySelectedAttacks()
     {
-        leftClickAttack = continuousAttacks.Contains(leftAttackParticle.name) ? new ContinuousAttack(leftAttackParticle, KeyCode.Mouse0, animator) : new BasicAttack(leftAttackParticle, KeyCode.Mouse0, animator);
-        rightClickAttack = continuousAttacks.Contains(rightAttackParticle.name) ? new ContinuousAttack(rightAttackParticle, KeyCode.Mouse1, animator) : new BasicAttack(rightAttackParticle, KeyCode.Mouse1, animator);
-        additionalAttack1 = continuousAttacks.Contains(add1AttackParticle.name) ? new ContinuousAttack(add1AttackParticle, KeyCode.Mouse4, animator) : new BasicAttack(add1AttackParticle, KeyCode.Mouse4, animator);
-        additionalAttack2 = continuousAttacks.Contains(add2AttackParticle.name) ? new ContinuousAttack(add2AttackParticle, KeyCode.Mouse3, animator) : new BasicAttack(add2AttackParticle, KeyCode.Mouse3, animator);
+        leftClickAttack = CreateAttackForKey(leftAttack, KeyCode.Mouse0);
+        rightClickAttack = CreateAttackForKey(rightAttack, KeyCode.Mouse1);
+        additionalAttack1 = CreateAttackForKey(add1Attack, KeyCode.Mouse4);
+        additionalAttack2 = CreateAttackForKey(add2Attack, KeyCode.Mouse3);
     }
+
+    private BasicAttack CreateAttackForKey(UnityEngine.Object attackObject, KeyCode key)
+    {
+        if (attackObject == null)
+            return new BasicAttack(null, key, animator);
+
+        if (attackObject is GameObject go)
+        {
+            var ps = go.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                if (continuousAttacks.Contains(ps.name))
+                    return new ContinuousAttack(ps, key, animator);
+                else
+                    return new BasicAttack(ps, key, animator);
+            }
+
+            if (instanceActions.Contains(go.name))
+                return new BuildCast(key, animator, go);
+        }
+
+        if (attackObject is ParticleSystem directPs)
+        {
+            if (continuousAttacks.Contains(directPs.name))
+                return new ContinuousAttack(directPs, key, animator);
+            else
+                return new BasicAttack(directPs, key, animator);
+        }
+
+        return new BasicAttack(null, key, animator);
+    }
+
 
     void RotateToMouse()
     {
