@@ -2,83 +2,156 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using MiniJSON;
+using UnityEngine.UI;
+using Unity.VisualScripting;
+using TMPro;
+
+public class AttackData
+{
+    public string type;    // "basic", "continuous", "instance"
+    public float cooldown; // sekundy
+}
+
+public static class SimpleJsonParser
+{
+    public static Dictionary<string, AttackData> Parse(string json)
+    {
+        var dict = new Dictionary<string, AttackData>();
+        var raw = Json.Deserialize(json) as Dictionary<string, object>;
+        if (raw == null) return dict;
+
+        foreach (var kvp in raw)
+        {
+            var sub = kvp.Value as Dictionary<string, object>;
+            if (sub == null) continue;
+
+            float cooldownValue = 0f;
+            if (sub.TryGetValue("cooldown", out var val))
+            {
+                switch (val)
+                {
+                    case double d: cooldownValue = (float)d; break;
+                    case long l: cooldownValue = l; break;
+                    case string s:
+                        s = s.Replace(',', '.'); // <- kluczowy krok!
+                        float.TryParse(s, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out cooldownValue);
+                        break;
+                }
+            }
+
+            dict[kvp.Key] = new AttackData
+            {
+                type = sub.ContainsKey("type") ? sub["type"].ToString() : "basic",
+                cooldown = cooldownValue
+            };
+
+            Debug.Log($"Parsed {kvp.Key}: type={dict[kvp.Key].type}, cooldown={dict[kvp.Key].cooldown}");
+        }
+
+        return dict;
+    }
+
+}
 
 public class BasicAttack
 {
     protected ParticleSystem particle;
     protected KeyCode keyCode;
     protected Animator animator;
+    protected AttacksManager manager;
+    protected string attackName;
+    protected float cooldown;
 
-    public virtual void onUpdateFunc() 
-    {
-        if (Input.GetKeyDown(keyCode))
-        {
-            animator.SetTrigger("Melee1");
-
-            particle.Play();
-        }
-    }
-
-    public BasicAttack(ParticleSystem particle, KeyCode key, Animator animator)
+    public BasicAttack(ParticleSystem particle, KeyCode key, Animator animator, AttacksManager manager, string name, float cooldown)
     {
         this.particle = particle;
         this.keyCode = key;
         this.animator = animator;
+        this.manager = manager;
+        this.attackName = name;
+        this.cooldown = cooldown;
+
+    }
+
+    public virtual void onUpdateFunc()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        if (Input.GetKeyDown(keyCode))
+        {
+            manager.attackCooldowns[keyCode] = cooldown;
+            animator.SetTrigger("Melee1");
+            particle?.Play();
+
+        }
     }
 }
 
-
-
 public class ContinuousAttack : BasicAttack
 {
+    public ContinuousAttack(ParticleSystem particle, KeyCode key, Animator animator, AttacksManager manager, string name, float cooldown)
+        : base(particle, key, animator, manager, name, cooldown) { }
+
     public override void onUpdateFunc()
     {
+        
+
         if (Input.GetKey(keyCode))
         {
+            if (manager.attackCooldowns[keyCode] > 0f) return;
+            manager.attackCooldowns[keyCode] = cooldown;
             animator.SetBool("CastingContinuousSpell1", true);
-            particle.Play();
+            particle?.Play();
         }
         else
         {
-            if (particle.isPlaying)
+            if (particle?.isPlaying == true)
             {
                 animator.SetBool("CastingContinuousSpell1", false);
                 particle.Stop();
             }
         }
     }
-
-    public ContinuousAttack(ParticleSystem particle, KeyCode key, Animator animator)
-        : base(particle, key, animator) { }
 }
 
-public class BuildCast : BasicAttack 
+public class BuildCast : BasicAttack
 {
-    private GameObject gameobjectPrefab;
-    public override void onUpdateFunc()
+    private GameObject prefab;
+
+    public BuildCast(KeyCode key, Animator animator, GameObject prefab, AttacksManager manager, string name, float cooldown)
+        : base(null, key, animator, manager, name, cooldown)
     {
-        if (Input.GetKeyDown(keyCode))
-        {
-            animator.SetBool("CastingContinuousSpell1", true);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            int groundMask = LayerMask.GetMask("Ground");
-            if (Physics.Raycast(ray, out hit, 100f, groundMask))
-            {
-                Vector3 target = hit.point;
-                UnityEngine.Object.Instantiate(gameobjectPrefab, target, animator.transform.rotation);
-            }
-        }
+        this.prefab = prefab;
     }
 
-    public BuildCast(KeyCode key, Animator animator, GameObject objectToInstance)
-        : base(null, key, animator) { gameobjectPrefab = objectToInstance; }
+    public override void onUpdateFunc()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        if (Input.GetKeyDown(keyCode))
+        {
+            manager.attackCooldowns[keyCode] = cooldown;
+            animator.SetBool("CastingContinuousSpell1", true);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground")))
+            {
+                UnityEngine.Object.Instantiate(prefab, hit.point, animator.transform.rotation);
+            }
+
+            if (manager.allAttacks.TryGetValue(attackName, out var data))
+                manager.attackCooldowns[keyCode] = data.cooldown;
+        }
+    }
 }
 
 public class AttacksManager : MonoBehaviour 
 {
-    private string[] continuousAttacks = { "Fire" };
-    private string[] instanceActions = { "Build Wall" };
+    //private string[] continuousAttacks = { "Fire" };
+    //private string[] instanceActions = { "Build Wall" };
+    //private string[] basicAttacks = { "Basic Slash", "Double Slash", "BigSlash", "Freeze", "Magic Shield" };
+
+    public Dictionary<string, AttackData> allAttacks;
 
     [Header("Available Skills")]
     public List<ParticleSystem> availableAttacks = new List<ParticleSystem>();
@@ -95,12 +168,30 @@ public class AttacksManager : MonoBehaviour
     BasicAttack additionalAttack1;
     BasicAttack additionalAttack2;
 
-    public ManagerGame gameManager;
+    public Dictionary<KeyCode, float> attackCooldowns = new Dictionary<KeyCode, float>{
+        { KeyCode.Mouse0, 0f },
+        { KeyCode.Mouse1, 0f },
+        { KeyCode.Mouse4, 0f },
+        { KeyCode.Mouse3, 0f }
+    };
 
+    [Header("Attack Icons UI")]
+    public Image leftAttackIcon;
+    public Image rightAttackIcon;
+    public Image add1AttackIcon;
+    public Image add2AttackIcon;
+
+    public TMP_Text cooldownTextLeft;
+    public TMP_Text cooldownTextRight;
+    public TMP_Text cooldownTextAdd1;
+    public TMP_Text cooldownTextAdd2;
+
+    public ManagerGame gameManager;
     public Animator animator;
 
     void Awake()
     {
+        LoadAttackConfigs();
         ApplySelectedAttacks();
     }
     void Update()
@@ -114,8 +205,35 @@ public class AttacksManager : MonoBehaviour
             additionalAttack1.onUpdateFunc();
             additionalAttack2.onUpdateFunc();
 
+            foreach (var key in attackCooldowns.Keys.ToList())
+            {
+                if (attackCooldowns[key] > 0f)
+                    attackCooldowns[key] -= Time.deltaTime;
+                switch (key)
+                {
+                    case KeyCode.Mouse0:
+                        cooldownTextLeft.SetText((attackCooldowns[key]).ToString());
+                        return;
+                    case KeyCode.Mouse1:
+                        cooldownTextRight.SetText(attackCooldowns[key].ToString());
+                        return;
+                    case KeyCode.Mouse4:
+                        cooldownTextAdd1.SetText(attackCooldowns[key].ToString());
+                        return;
+                    case KeyCode.Mouse3:
+                        cooldownTextAdd2.SetText(attackCooldowns[key].ToString());
+                        return;
+                }
+            }
         }
+    }
+
+    private Sprite LoadAttackIcon(string attackName)
+    {
+
+        Sprite icon = Resources.Load<Sprite>($"AttackIcons/{attackName}");
         
+        return icon;
     }
 
     public void ApplySelectedAttacks()
@@ -124,37 +242,73 @@ public class AttacksManager : MonoBehaviour
         rightClickAttack = CreateAttackForKey(rightAttack, KeyCode.Mouse1);
         additionalAttack1 = CreateAttackForKey(add1Attack, KeyCode.Mouse4);
         additionalAttack2 = CreateAttackForKey(add2Attack, KeyCode.Mouse3);
+
+        UpdateAttackIcons();
+    }
+
+    private void UpdateAttackIcons()
+    {
+        if (leftAttack != null && leftAttackIcon != null)
+            leftAttackIcon.sprite = LoadAttackIcon(leftAttack.name);
+
+        if (rightAttack != null && rightAttackIcon != null)
+            rightAttackIcon.sprite = LoadAttackIcon(rightAttack.name);
+
+        if (add1Attack != null && add1AttackIcon != null)
+            add1AttackIcon.sprite = LoadAttackIcon(add1Attack.name);
+
+        if (add2Attack != null && add2AttackIcon != null)
+            add2AttackIcon.sprite = LoadAttackIcon(add2Attack.name);
+    }
+
+    private void LoadAttackConfigs()
+    {
+        TextAsset jsonFile = Resources.Load<TextAsset>("Config/attacks");
+        if (jsonFile == null)
+        {
+            allAttacks = new Dictionary<string, AttackData>();
+            return;
+        }
+
+        allAttacks = SimpleJsonParser.Parse(jsonFile.text);
     }
 
     private BasicAttack CreateAttackForKey(UnityEngine.Object attackObject, KeyCode key)
     {
         if (attackObject == null)
-            return new BasicAttack(null, key, animator);
+            return new BasicAttack(null, key, animator, this, null, 0);
 
-        if (attackObject is GameObject go)
+        string attackName = attackObject.name;
+        if (!allAttacks.TryGetValue(attackName, out AttackData data))
         {
-            var ps = go.GetComponent<ParticleSystem>();
-            if (ps != null)
-            {
-                if (continuousAttacks.Contains(ps.name))
-                    return new ContinuousAttack(ps, key, animator);
-                else
-                    return new BasicAttack(ps, key, animator);
-            }
-
-            if (instanceActions.Contains(go.name))
-                return new BuildCast(key, animator, go);
+            return new BasicAttack(GetParticleIfExists(attackObject), key, animator, this, attackName, 0);
         }
 
-        if (attackObject is ParticleSystem directPs)
+        switch (data.type.ToLower())
         {
-            if (continuousAttacks.Contains(directPs.name))
-                return new ContinuousAttack(directPs, key, animator);
-            else
-                return new BasicAttack(directPs, key, animator);
-        }
+            case "continuous":
+                return new ContinuousAttack(GetParticleIfExists(attackObject), key, animator, this, attackName, data.cooldown);
 
-        return new BasicAttack(null, key, animator);
+            case "instance":
+                return new BuildCast(key, animator, GetGameObjectIfExists(attackObject), this, attackName, data.cooldown);
+
+            default:
+                return new BasicAttack(GetParticleIfExists(attackObject), key, animator, this, attackName, data.cooldown);
+        }
+    }
+
+    private ParticleSystem GetParticleIfExists(Object obj)
+    {
+        if (obj is ParticleSystem ps) return ps;
+        if (obj is GameObject go) return go.GetComponent<ParticleSystem>();
+        return null;
+    }
+
+    private GameObject GetGameObjectIfExists(Object obj)
+    {
+        if (obj is GameObject go) return go;
+        if (obj is ParticleSystem ps) return ps.gameObject;
+        return null;
     }
 
 

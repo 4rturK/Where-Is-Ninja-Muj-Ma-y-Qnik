@@ -1,0 +1,9 @@
+{
+  "Fire": { "type": "continuous", "cooldown": "2.5" },
+  "Build Wall": { "type": "instance", "cooldown": "5.0" },
+  "Basic Slash": { "type": "basic", "cooldown": "0.8" },
+  "BigSlash": { "type": "basic", "cooldown": "2.0" },
+  "Freeze": { "type": "basic", "cooldown": "8.0" },
+  "Double Slash": { "type": "basic", "cooldown": "1.2" },
+  "Magic Shield": { "type": "basic", "cooldown": "3.5" }
+}

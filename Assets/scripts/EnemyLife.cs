@@ -18,7 +18,7 @@ public class LifeSystem: MonoBehaviour
     public void takeDamage(float damage)
     {
         hp -= damage;
-        healthbarCanvas.gameObject.SetActive(true);
+        healthbarCanvas?.gameObject.SetActive(true);
         healthbarForeground.fillAmount = hp/maxhp;
     }
 }
