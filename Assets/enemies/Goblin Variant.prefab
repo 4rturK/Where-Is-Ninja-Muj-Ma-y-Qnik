@@ -3303,7 +3303,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 247c80268b595f74aad500096f912a45, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 13ebfc420db653349b98dcf5d5b51e64, type: 2}
+      objectReference: {fileID: 9100000, guid: 96fd6040b1e491d40a78b180b10c8549, type: 2}
     - target: {fileID: 5866666021909216657, guid: 247c80268b595f74aad500096f912a45, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -4125,7 +4125,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d235e1160e468864e87812378a08a545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxhp: 100
   hp: 100
+  healthbarForeground: {fileID: 0}
+  healthbarCanvas: {fileID: 0}
 --- !u!114 &6945773212380096188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4253,6 +4256,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 34
   attackedTag: Player
+  layer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &2845156158244321970
 MonoBehaviour:
   m_ObjectHideFlags: 0

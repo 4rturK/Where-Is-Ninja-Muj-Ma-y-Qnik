@@ -119,6 +119,41 @@ public class ContinuousAttack : BasicAttack
     }
 }
 
+public class RangedAttack : BasicAttack
+{
+    private GameObject projectilePrefab;
+    private Transform firePoint;
+    private float shotPower;
+
+    public RangedAttack(GameObject projectile, Transform firePoint, KeyCode key, Animator animator, AttacksManager manager, string name, float cooldown, float shotPower)
+        : base(null, key, animator, manager, name, cooldown)
+    {
+        this.projectilePrefab = projectile;
+        this.firePoint = firePoint;
+        this.shotPower = shotPower;
+    }
+
+    public override void onUpdateFunc()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        if (Input.GetKeyDown(keyCode))
+        {
+            manager.attackCooldowns[keyCode] = cooldown;
+            animator.SetTrigger("CrossbowShoot");
+
+            if (projectilePrefab != null && firePoint != null)
+            {
+                GameObject arrow = UnityEngine.Object.Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+                Rigidbody rb = arrow.GetComponent<Rigidbody>();
+                if (rb != null)
+                    rb.AddRelativeForce(Vector3.forward * shotPower, ForceMode.Impulse);
+            }
+        }
+    }
+}
+
+
 public class BuildCast : BasicAttack
 {
     private GameObject prefab;
@@ -155,7 +190,25 @@ public class AttacksManager : MonoBehaviour
     //private string[] instanceActions = { "Build Wall" };
     //private string[] basicAttacks = { "Basic Slash", "Double Slash", "BigSlash", "Freeze", "Magic Shield" };
 
+    public enum WeaponMode
+    {
+        Magic,
+        Crossbow
+    }
+
+    [Header("Weapon Settings")]
+    public WeaponMode currentWeapon = WeaponMode.Magic;
+    public GameObject crossbowObject;
+
     public Dictionary<string, AttackData> allAttacks;
+
+    [Header("Crossbow Settings")]
+    public GameObject crossbowArrowPrefab;
+    public Transform firePoint;
+    public float reloadTime;
+    public float arrowForce;
+
+    private RangedAttack crossbowAttack;
 
     [Header("Available Skills")]
     public List<ParticleSystem> availableAttacks = new List<ParticleSystem>();
@@ -197,6 +250,17 @@ public class AttacksManager : MonoBehaviour
     {
         LoadAttackConfigs();
         ApplySelectedAttacks();
+        crossbowObject.SetActive(false);
+        crossbowAttack = new RangedAttack(
+            crossbowArrowPrefab,
+            firePoint,
+            KeyCode.Mouse0,
+            animator,
+            this,
+            "Crossbow",
+            reloadTime,
+            arrowForce
+        );
     }
     void Update()
     {
@@ -204,10 +268,17 @@ public class AttacksManager : MonoBehaviour
         {
             RotateToMouse();
 
-            leftClickAttack.onUpdateFunc();
-            rightClickAttack.onUpdateFunc();
-            additionalAttack1.onUpdateFunc();
-            additionalAttack2.onUpdateFunc();
+            if (currentWeapon == WeaponMode.Magic)
+            {
+                leftClickAttack.onUpdateFunc();
+                rightClickAttack.onUpdateFunc();
+                additionalAttack1.onUpdateFunc();
+                additionalAttack2.onUpdateFunc();
+            }
+            else if (currentWeapon == WeaponMode.Crossbow)
+            {
+                crossbowAttack?.onUpdateFunc();
+            }
 
             foreach (var key in attackCooldowns.Keys.ToList())
             {
@@ -229,6 +300,16 @@ public class AttacksManager : MonoBehaviour
                         cooldownTextAdd2.SetText(waitingTime);
                         break;
                 }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                SwitchWeapon(WeaponMode.Magic);
+            }
+                
+            if (Input.GetKeyDown(KeyCode.Alpha2)) 
+            { 
+                SwitchWeapon(WeaponMode.Crossbow);  
             }
         }
     }
@@ -330,6 +411,28 @@ public class AttacksManager : MonoBehaviour
             Vector3 direction = (target - transform.position).normalized;
             if (direction != Vector3.zero)
                 transform.rotation = Quaternion.LookRotation(direction);
+        }
+    }
+
+    public void SwitchWeapon(WeaponMode newMode)
+    {
+        if (currentWeapon == newMode) return;
+
+        currentWeapon = newMode;
+
+        switch (currentWeapon)
+        {
+            case WeaponMode.Magic:
+                if (crossbowObject != null)
+                    crossbowObject.SetActive(false);
+                animator.SetBool("CrossbowEquipped", false);
+                break;
+
+            case WeaponMode.Crossbow:
+                if (crossbowObject != null)
+                    crossbowObject.SetActive(true);
+                animator.SetBool("CrossbowEquipped", true);
+                break;
         }
     }
 }
