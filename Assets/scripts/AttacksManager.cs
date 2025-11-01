@@ -46,7 +46,6 @@ public static class SimpleJsonParser
                 cooldown = cooldownValue
             };
 
-            Debug.Log($"Parsed {kvp.Key}: type={dict[kvp.Key].type}, cooldown={dict[kvp.Key].cooldown}");
         }
 
         return dict;
@@ -95,12 +94,17 @@ public class ContinuousAttack : BasicAttack
 
     public override void onUpdateFunc()
     {
-        
+        if(Input.GetKeyUp(keyCode))
+        {
+            manager.attackCooldowns[keyCode] = cooldown;
+            animator.SetBool("CastingContinuousSpell1", false);
+            particle.Stop();
+        }
+
+        if (manager.attackCooldowns[keyCode] > 0f) return;
 
         if (Input.GetKey(keyCode))
         {
-            if (manager.attackCooldowns[keyCode] > 0f) return;
-            manager.attackCooldowns[keyCode] = cooldown;
             animator.SetBool("CastingContinuousSpell1", true);
             particle?.Play();
         }
@@ -209,20 +213,21 @@ public class AttacksManager : MonoBehaviour
             {
                 if (attackCooldowns[key] > 0f)
                     attackCooldowns[key] -= Time.deltaTime;
+                string waitingTime = attackCooldowns[key] <= 0 ? "" : (attackCooldowns[key]).ToString("0.#");
                 switch (key)
                 {
                     case KeyCode.Mouse0:
-                        cooldownTextLeft.SetText((attackCooldowns[key]).ToString());
-                        return;
+                        cooldownTextLeft.SetText(waitingTime);
+                        break;
                     case KeyCode.Mouse1:
-                        cooldownTextRight.SetText(attackCooldowns[key].ToString());
-                        return;
+                        cooldownTextRight.SetText(waitingTime);
+                        break;
                     case KeyCode.Mouse4:
-                        cooldownTextAdd1.SetText(attackCooldowns[key].ToString());
-                        return;
+                        cooldownTextAdd1.SetText(waitingTime);
+                        break;
                     case KeyCode.Mouse3:
-                        cooldownTextAdd2.SetText(attackCooldowns[key].ToString());
-                        return;
+                        cooldownTextAdd2.SetText(waitingTime);
+                        break;
                 }
             }
         }
