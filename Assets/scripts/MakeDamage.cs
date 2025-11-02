@@ -19,7 +19,6 @@ public class MakeDamage : MonoBehaviour
 
     void OnParticleTrigger()
     {
-        Debug.Log("aaaa");
         int numEnter = ps.GetTriggerParticles(ParticleSystemTriggerEventType.Outside, enter);
 
         for (int i = 0; i < numEnter; i++)
