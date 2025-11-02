@@ -10,16 +10,16 @@ public class MakeDamagePhysical : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("Kolizja z dobrym tagiem");
         if (collision.gameObject.CompareTag(attackedTag))
         {
-            // Zadaj obra¿enia
-            EnemyLife hitted = collision.gameObject.GetComponent<EnemyLife>();
+            Debug.Log("Kolizja z dobrym tagiem");
+            LifeSystem hitted = collision.gameObject.GetComponent<LifeSystem>();
             if (hitted != null)
             {
                 hitted.takeDamage(damage);
             }
 
-            // Spróbuj odepchn¹æ obiekt (jeœli ma Rigidbody)
             Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
             if (rb != null)
             {

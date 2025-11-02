@@ -33,7 +33,7 @@ public class EnemyLife : LifeSystem
         {
             //Destroy(gameObject);
             animator.SetTrigger("Death1");
-            //TODO zblokowaæ go ¿eby ju¿ nie chodzi³ i nie bi³ ludzi
+            healthbarCanvas.gameObject.SetActive(false);
         }
     }
 }

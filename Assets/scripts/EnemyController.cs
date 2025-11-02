@@ -23,15 +23,21 @@ public class EnemyController : MonoBehaviour
     private Vector3 velocity;
     private Rigidbody rb;
     private float attackTimer = 0f;
+    private EnemyLife enemyLife;
 
     private void Awake()
     {
         checkForPlayer = GetComponent<CheckForPlayer>();
         rb = GetComponent<Rigidbody>();
+        enemyLife = GetComponent<EnemyLife>();
     }
 
     private void FixedUpdate()
     {
+        if (!enemyLife.isAlive())
+        {
+            return;
+        }
         if (!checkForPlayer.isTargetVisible)
         {
             velocity = Vector3.Lerp(velocity, Vector3.zero, Time.fixedDeltaTime * deceleration);
