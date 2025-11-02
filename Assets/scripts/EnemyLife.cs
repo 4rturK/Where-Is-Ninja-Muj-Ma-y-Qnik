@@ -9,6 +9,7 @@ public class LifeSystem: MonoBehaviour
     public float hp = 100;
     public Image healthbarForeground;
     public Canvas healthbarCanvas;
+    public Animator animator;
 
     public bool isAlive()
     {
@@ -30,7 +31,9 @@ public class EnemyLife : LifeSystem
     {
         if (!isAlive())
         {
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            animator.SetTrigger("Death1");
+            //TODO zblokowaæ go ¿eby ju¿ nie chodzi³ i nie bi³ ludzi
         }
     }
 }

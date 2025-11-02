@@ -324,6 +324,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.6002
       objectReference: {fileID: 0}
+    - target: {fileID: 6945773212380096188, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1626197815}
+    - target: {fileID: 6945773212380096188, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8978383695306352657, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1626197815}
     - target: {fileID: 8978383695306352657, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
       propertyPath: healthbarCanvas
       value: 
@@ -883,7 +895,7 @@ GameObject:
   - component: {fileID: 348898614}
   - component: {fileID: 348898615}
   m_Layer: 7
-  m_Name: Foregound
+  m_Name: Foreground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6193,6 +6205,7 @@ MonoBehaviour:
   hp: 100
   healthbarForeground: {fileID: 0}
   healthbarCanvas: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1 &993122062 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 247c80268b595f74aad500096f912a45, type: 3}
@@ -6214,6 +6227,9 @@ MonoBehaviour:
   acceleration: 5
   deceleration: 8
   rotateTowardsMoveDirection: 1
+  attackRange: 2
+  attackCooldown: 1.5
+  animator: {fileID: 0}
 --- !u!114 &993122064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6230,6 +6246,7 @@ MonoBehaviour:
   hp: 100
   healthbarForeground: {fileID: 0}
   healthbarCanvas: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!136 &993122067
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6968,6 +6985,12 @@ MonoBehaviour:
   hp: 100
   healthbarForeground: {fileID: 0}
   healthbarCanvas: {fileID: 0}
+  animator: {fileID: 0}
+--- !u!95 &1626197815 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 8790143769484748468, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
+  m_PrefabInstance: {fileID: 59902168}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1699866670 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8753280126745435920, guid: 634af7bece146224f939a2525bbdaa59, type: 3}
@@ -6999,6 +7022,7 @@ MonoBehaviour:
   hp: 100
   healthbarForeground: {fileID: 0}
   healthbarCanvas: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1001 &1951752455
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7196,6 +7220,7 @@ MonoBehaviour:
   hp: 100
   healthbarForeground: {fileID: 384900900}
   healthbarCanvas: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1001 &2116572800
 PrefabInstance:
   m_ObjectHideFlags: 0

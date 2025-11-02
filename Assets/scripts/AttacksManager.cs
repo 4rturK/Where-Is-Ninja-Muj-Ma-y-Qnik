@@ -171,7 +171,7 @@ public class BuildCast : BasicAttack
         if (Input.GetKeyDown(keyCode))
         {
             manager.attackCooldowns[keyCode] = cooldown;
-            animator.SetBool("CastingContinuousSpell1", true);
+            animator.SetTrigger("CastingSpell1");
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground")))
             {
