@@ -278,7 +278,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394854280237006030, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.567495
+      value: -6.5
       objectReference: {fileID: 0}
     - target: {fileID: 3394854280237006030, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
       propertyPath: m_LocalPosition.y
@@ -286,7 +286,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3394854280237006030, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.9378123
+      value: -0.91
       objectReference: {fileID: 0}
     - target: {fileID: 3394854280237006030, guid: 6634bce6d3647184b9b79c49fbe25d12, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5447,6 +5447,26 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1967256816}
   m_SourcePrefab: {fileID: 100100000, guid: 247c80268b595f74aad500096f912a45, type: 3}
+--- !u!1 &516899120 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7057366258369389639, guid: 40104f13c12700940880c1145730be63, type: 3}
+  m_PrefabInstance: {fileID: 1304004581533000056}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &516899124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516899120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da3d6a14ad23b8644819c759a4f63487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 20
+  pushForce: 1
+  attackedTag: Enemy
 --- !u!4 &566989888 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1541059871354857476, guid: 40104f13c12700940880c1145730be63, type: 3}
@@ -7995,9 +8015,45 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6998103559384755747, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_Size.y
+      value: 0.049999993
+      objectReference: {fileID: 0}
+    - target: {fileID: 6998103559384755747, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_Size.z
+      value: 1.5645362
+      objectReference: {fileID: 0}
+    - target: {fileID: 6998103559384755747, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_Center.x
+      value: -0.000000011187962
+      objectReference: {fileID: 0}
+    - target: {fileID: 6998103559384755747, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_Center.y
+      value: -0.000000039987277
+      objectReference: {fileID: 0}
+    - target: {fileID: 6998103559384755747, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_Center.z
+      value: 0.28227192
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004874151198682299, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_UseGravity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004874151198682299, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7036566826683465533, guid: 40104f13c12700940880c1145730be63, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7057366258369389639, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7057923139943250131, guid: 40104f13c12700940880c1145730be63, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7079053325085898316, guid: 40104f13c12700940880c1145730be63, type: 3}
       propertyPath: TriggerModule.exit
@@ -8144,6 +8200,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2173305014385603262, guid: 40104f13c12700940880c1145730be63, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2082153962}
+    - targetCorrespondingSourceObject: {fileID: 7057366258369389639, guid: 40104f13c12700940880c1145730be63, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 516899124}
     - targetCorrespondingSourceObject: {fileID: 7057923139943250131, guid: 40104f13c12700940880c1145730be63, type: 3}
       insertIndex: -1
       addedObject: {fileID: 299957101}
