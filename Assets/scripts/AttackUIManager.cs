@@ -12,15 +12,19 @@ public class AttackUIManager : MonoBehaviour
     public TMP_Dropdown add2Dropdown;
 
     public GameObject attackSelectPanel;
+    public GameObject gamePanel;
 
     public ManagerGame gameManager;
 
     void Start()
     {
+        //Debug.Log("Dupa");
         var attackNames = attacksManager.availableAttacks
             .Select(a => a.name)
             .Concat(attacksManager.availableInstances.Select(a => a.name))
             .ToList();
+
+        //Debug.Log(attackNames.Count);
 
         SetupDropdown(leftDropdown, attackNames, attacksManager.leftAttack);
         SetupDropdown(rightDropdown, attackNames, attacksManager.rightAttack);
@@ -40,6 +44,7 @@ public class AttackUIManager : MonoBehaviour
             Time.timeScale = attackSelectPanel.active ? 1f: 0.01f;
             gameManager.gameLoop = attackSelectPanel.active;
             attackSelectPanel.SetActive(!attackSelectPanel.active);
+            gamePanel.SetActive(!attackSelectPanel.active);
         }
     }
 
