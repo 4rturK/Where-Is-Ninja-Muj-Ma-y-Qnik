@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -15,9 +16,14 @@ public class PlayerMovement3D : MonoBehaviour
     private Vector3 inputDir;
     private Vector3 velocity;
 
+    private Transform spine;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        spine = animator.transform.Find("Armature/mixamorig:Hips/mixamorig:Spine/mixamorig:Spine2");
+        var testSpine = animator.GetBoneTransform(HumanBodyBones.UpperChest);
+        UnityEngine.Debug.Log($"UpperChest: {(testSpine ? testSpine.name : "NULL")}");
     }
 
     private void Update()
@@ -66,4 +72,18 @@ public class PlayerMovement3D : MonoBehaviour
 
     }
 
+    void LateUpdate()
+    {
+        Transform spine = animator.GetBoneTransform(HumanBodyBones.UpperChest);
+        if (spine == null) return;
+
+        float moveX = animator.GetFloat("MoveX");
+
+        float tiltY = Mathf.Lerp(0f, 40f, Mathf.Abs(moveX));
+        Quaternion offset = Quaternion.Euler(0f, -tiltY, tiltY/3);
+
+        Quaternion animatedRotation = spine.localRotation;
+
+        spine.localRotation = animatedRotation * offset;
+    }
 }
