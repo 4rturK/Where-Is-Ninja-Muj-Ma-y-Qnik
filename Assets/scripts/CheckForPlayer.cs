@@ -10,6 +10,8 @@ public class CheckForPlayer : MonoBehaviour
     public float viewAngle = 45f;
     public LayerMask layerMask;
 
+    public float viewDistanceEveryDir = 5f;
+
     [Header("Wynik")]
     public bool isTargetVisible;
     public GameObject targetGameObject;
@@ -30,10 +32,11 @@ public class CheckForPlayer : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            Vector3 dirToTarget = (hit.transform.position - transform.position).normalized;
-            float angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
+            Vector3 dirToTarget = (hit.transform.position - transform.position);
+            float dist = dirToTarget.magnitude;
+            float angleToTarget = Vector3.Angle(transform.forward, dirToTarget.normalized);
 
-            if (angleToTarget < viewAngle)
+            if (angleToTarget < viewAngle || dist < viewDistanceEveryDir)
             {
                 targetGameObject = hit.gameObject;
                 return true;
