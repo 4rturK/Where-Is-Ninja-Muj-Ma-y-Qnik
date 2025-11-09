@@ -5046,8 +5046,11 @@ MonoBehaviour:
   acceleration: 5
   deceleration: 8
   rotateTowardsMoveDirection: 1
-  attackRange: 2
-  attackCooldown: 1.5
+  attackRange: 20
+  crossbowArrowPrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  reloadTime: 3
+  arrowForce: 20
   animator: {fileID: 926752073}
 --- !u!136 &926752079
 CapsuleCollider:
