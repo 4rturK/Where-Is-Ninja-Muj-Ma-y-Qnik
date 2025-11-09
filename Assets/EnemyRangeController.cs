@@ -48,7 +48,7 @@ public class EnemyRangeController : MonoBehaviour
         {
             movementLockTimer -= Time.fixedDeltaTime;
 
-            velocity = Vector3.zero;
+            //velocity = Vector3.zero;
             rb.MovePosition(rb.position);
             animator.SetFloat("Velocity", 0f);
 
@@ -114,7 +114,7 @@ public class EnemyRangeController : MonoBehaviour
                 Quaternion offset = Quaternion.Euler(0f, 36f, 0f);
 
                 Quaternion finalRot = lookRot * offset;
-                rb.MoveRotation(Quaternion.Slerp(rb.rotation, finalRot, Time.fixedDeltaTime * 10f));
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, finalRot, Time.fixedDeltaTime * 10000000f));
 
 
                 Vector3 newForward = rb.rotation * Vector3.forward;

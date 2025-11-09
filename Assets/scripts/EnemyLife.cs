@@ -20,7 +20,10 @@ public class LifeSystem: MonoBehaviour
     {
         hp -= damage;
         healthbarForeground.fillAmount = hp/maxhp;
-        healthbarCanvas?.gameObject.SetActive(true);
+        if (healthbarCanvas != null)
+        {
+            healthbarCanvas?.gameObject.SetActive(true);
+        }
     }
 }
 

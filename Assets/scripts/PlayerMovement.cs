@@ -46,9 +46,17 @@ public class PlayerMovement3D : MonoBehaviour
         {
             newX = 0f;
             newZ = 0f;
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                animator.SetBool("Taunt1", true);
+            }
+        }
+        else
+        {
+            animator.SetBool("Taunt1", false);
         }
 
-        animator.SetFloat("MoveX", newX);
+            animator.SetFloat("MoveX", newX);
         animator.SetFloat("MoveZ", newZ);
     }
 

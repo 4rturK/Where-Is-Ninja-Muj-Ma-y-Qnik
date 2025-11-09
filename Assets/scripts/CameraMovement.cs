@@ -13,6 +13,7 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
+        if (LookAt == null) return;
         transform.position = LookAt.position + new Vector3(0, 12, -5);
     }
 }

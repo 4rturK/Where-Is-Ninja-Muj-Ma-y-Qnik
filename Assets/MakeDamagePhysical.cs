@@ -8,6 +8,8 @@ public class MakeDamagePhysical : MonoBehaviour
     public float pushForce = 5f;
     public string attackedTag = "Enemy";
 
+    public bool destroyOnHit = true;
+
     private void OnCollisionEnter(Collision collision)
     {
         Debug.Log("Kolizja z dobrym tagiem");
@@ -26,6 +28,11 @@ public class MakeDamagePhysical : MonoBehaviour
                 // Kierunek od cz¹stki do przeciwnika
                 Vector3 pushDir = (collision.transform.position - transform.position).normalized;
                 rb.AddForce(pushDir * pushForce, ForceMode.Impulse);
+            }
+
+            if (destroyOnHit)
+            {
+                Destroy(gameObject);
             }
         }
     }
