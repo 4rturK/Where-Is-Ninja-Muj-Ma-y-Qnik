@@ -17,6 +17,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Komponenty")]
     public Animator animator;
+    public Collider attackHitbox;
 
     private CheckForPlayer checkForPlayer;
     private Vector3 inputDir;
@@ -30,6 +31,9 @@ public class EnemyController : MonoBehaviour
         checkForPlayer = GetComponent<CheckForPlayer>();
         rb = GetComponent<Rigidbody>();
         enemyLife = GetComponent<EnemyLife>();
+
+        if (attackHitbox != null)
+            attackHitbox.enabled = false;
     }
 
     private void FixedUpdate()
@@ -99,7 +103,23 @@ public class EnemyController : MonoBehaviour
         animator.ResetTrigger("Melee2");
 
         animator.SetTrigger(triggerName);
+    }
 
-        // TODO logika napierdalania playera po ryju
+    public void EnableHitbox()
+    {
+        if (attackHitbox != null)
+        {
+            attackHitbox.enabled = true;
+            Debug.Log("Enemy hitbox włączony");
+        }
+    }
+
+    public void DisableHitbox()
+    {
+        if (attackHitbox != null)
+        {
+            attackHitbox.enabled = false;
+            Debug.Log("Enemy hitbox wyłączony");
+        }
     }
 }

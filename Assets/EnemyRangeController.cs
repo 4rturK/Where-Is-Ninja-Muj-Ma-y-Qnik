@@ -141,14 +141,20 @@ public class EnemyRangeController : MonoBehaviour
         isMovementLocked = true;
         movementLockTimer = 2f;
 
+        StartCoroutine(AttackRoutine());
+    }
+
+    private IEnumerator AttackRoutine()
+    {
+        yield return new WaitForSeconds(0.5f);
         animator.ResetTrigger("Reload");
         animator.SetBool("IsAiming", false);
-
         animator.SetTrigger("Reload");
+
 
         if (crossbowArrowPrefab != null && firePoint != null)
         {
-            GameObject arrow = UnityEngine.Object.Instantiate(crossbowArrowPrefab, firePoint.position, firePoint.rotation);
+            GameObject arrow = Instantiate(crossbowArrowPrefab, firePoint.position, firePoint.rotation);
             Rigidbody rb = arrow.GetComponent<Rigidbody>();
             if (rb != null)
                 rb.AddRelativeForce(Vector3.forward * arrowForce, ForceMode.Impulse);

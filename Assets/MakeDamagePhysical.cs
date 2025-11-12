@@ -16,10 +16,10 @@ public class MakeDamagePhysical : MonoBehaviour
         if (collision.gameObject.CompareTag(attackedTag))
         {
             Debug.Log("Kolizja z dobrym tagiem");
-            LifeSystem hitted = collision.gameObject.GetComponent<LifeSystem>();
-            if (hitted != null)
+            LifeSystem hit = collision.gameObject.GetComponent<LifeSystem>();
+            if (hit != null)
             {
-                hitted.takeDamage(damage);
+                hit.takeDamage(damage);
             }
 
             Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
