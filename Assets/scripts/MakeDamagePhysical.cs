@@ -7,15 +7,16 @@ public class MakeDamagePhysical : MonoBehaviour
     public float damage = 7;
     public float pushForce = 5f;
     public string attackedTag = "Enemy";
+    public Animator animator;
 
     public bool destroyOnHit = true;
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Kolizja z dobrym tagiem");
+        //Debug.Log("Kolizja z dobrym tagiem");
         if (collision.gameObject.CompareTag(attackedTag))
         {
-            Debug.Log("Kolizja z dobrym tagiem");
+            //Debug.Log("Kolizja z dobrym tagiem");
             LifeSystem hit = collision.gameObject.GetComponent<LifeSystem>();
             if (hit != null)
             {
@@ -34,6 +35,9 @@ public class MakeDamagePhysical : MonoBehaviour
             {
                 Destroy(gameObject);
             }
+            animator.SetBool("Idle", false);
+            animator.SetBool("Running", false);
+            animator.SetBool("Attack", true);
         }
     }
 }

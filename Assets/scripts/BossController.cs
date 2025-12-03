@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public enum BossState
@@ -23,8 +25,19 @@ public class BossController : MonoBehaviour
     public Animator animator;
     private Vector3 velocity;
 
+    public AudioSource audioSource;
+
+    [Header("DŸwiêki animacji")]
+    public AudioClip runSound;
+    public AudioClip attackSound;
+    public AudioClip idleSound;
+    public AudioClip tauntSound;
+    public AudioClip deathSound;
+
     private float aimingTimer = 0f;
 
+    private float idleTimer = 0f;
+    private float nextIdleChangeTime = 0f;
 
     void Start()
     {
@@ -36,22 +49,40 @@ public class BossController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        Debug.Log(state.ToString());
         if (!enemyLife.isAlive())
         {
             return;
         }
+
         if (!checkForPlayer.isTargetVisible)
         {
+            state = BossState.Sleep;
+            animator.SetBool("Idle", true);
+            animator.SetBool("Running", false);
+            animator.SetBool("Attack", false);
+
             velocity = Vector3.Lerp(velocity, Vector3.zero, Time.fixedDeltaTime * deceleration);
             rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
-            animator.SetFloat("Velocity", velocity.magnitude, 0.1f, Time.deltaTime);
+
+            idleTimer += Time.deltaTime;
+            if (idleTimer >= nextIdleChangeTime)
+            {
+                animator.SetTrigger("Taunt");
+
+                idleTimer = 0f;
+                nextIdleChangeTime = UnityEngine.Random.Range(15f, 30f);
+            }
+
             return;
         }
 
         switch (state)
         {
             case BossState.Sleep:
+                animator.SetBool("Idle", true);
+                animator.SetBool("Running", false);
+                animator.SetBool("Attack", false);
+
                 if (checkForPlayer.isTargetVisible)
                 {
                     state = BossState.Aiming;
@@ -59,6 +90,9 @@ public class BossController : MonoBehaviour
                 break;
 
             case BossState.Running:
+                animator.SetBool("Idle", false);
+                animator.SetBool("Running", true);
+                animator.SetBool("Attack", false);
                 Vector3 targetVelocity = transform.forward * moveSpeed;
                 velocity = Vector3.Lerp(velocity, targetVelocity, Time.fixedDeltaTime * (transform.forward.magnitude > 0 ? acceleration : deceleration));
                 rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
@@ -68,13 +102,14 @@ public class BossController : MonoBehaviour
                 Quaternion targetRot = Quaternion.LookRotation(checkForPlayer.targetGameObject.transform.position - transform.position, Vector3.up);
                 rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * 10f));
 
-                aimingTimer += Time.deltaTime;
-                if (aimingTimer >= 5f)
-                {
-                    state = BossState.Running;
-                    aimingTimer = 0f;
-                }
-                break;
+
+            aimingTimer += Time.deltaTime;
+            if (aimingTimer >= 5f)
+            {
+                state = BossState.Running;
+                aimingTimer = 0f;
+            }
+            break;
         }
     }
 
@@ -85,5 +120,30 @@ public class BossController : MonoBehaviour
             velocity = Vector3.zero;
             state = BossState.Sleep;
         }
+    }
+
+    public void PlayRunSound()
+    {
+        if (runSound) audioSource.PlayOneShot(runSound);
+    }
+
+    public void PlayAttackSound()
+    {
+        if (attackSound) audioSource.PlayOneShot(attackSound);
+    }
+
+    public void PlayIdleSound()
+    {
+        if (idleSound) audioSource.PlayOneShot(idleSound);
+    }
+
+    public void PlayTauntSound()
+    {
+        if (tauntSound) audioSource.PlayOneShot(tauntSound);
+    }
+
+    public void PlayDeathSound()
+    {
+        if (deathSound) audioSource.PlayOneShot(deathSound);
     }
 }
