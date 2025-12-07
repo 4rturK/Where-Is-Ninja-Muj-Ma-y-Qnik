@@ -22,7 +22,7 @@ public class AttackUIManager : MonoBehaviour
     public Button startButton;
 
     public ManagerGame gameManager;
-    //public MicrophoneInput micInput;
+    public MicrophoneInput micInput;
 
     public bool pauseOnStart = true;
 
@@ -164,14 +164,14 @@ public class AttackUIManager : MonoBehaviour
         PlayerPrefs.Save();
 
         // Przeka¿ do MicrophoneInput
-        //if (micInput != null)
-        //{
-        //    micInput.SetDevice(dev);
-        //}
-        //else
-        //{
-        //    Debug.LogWarning($"StartMenuUI: Brak referencji do MicrophoneInput. Wybrane urz¹dzenie: {dev}");
-        //}
+        if (micInput != null)
+        {
+            micInput.SetDevice(dev);
+        }
+        else
+        {
+            Debug.LogWarning($"StartMenuUI: Brak referencji do MicrophoneInput. Wybrane urz¹dzenie: {dev}");
+        }
     }
 
     private void OnStartClicked()
