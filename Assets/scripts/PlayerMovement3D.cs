@@ -67,10 +67,7 @@ public class PlayerMovement3D : MonoBehaviour
     {
         if (controlMode != ControlMode.Voice) return;
 
-        Vector3 dir = preferredDir;
-        if (dir.sqrMagnitude < 0.0001f)
-            dir = (inputDir.sqrMagnitude > 0.0001f) ? inputDir : transform.forward;
-
+        Vector3 dir = (inputDir.sqrMagnitude > 0.0001f) ? inputDir : transform.forward;
         stepDir = dir.normalized;
 
         stepRemaining = Mathf.Clamp(stepRemaining + Mathf.Max(0f, distance), 0f, maxBufferedStep);

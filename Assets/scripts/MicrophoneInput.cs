@@ -211,10 +211,8 @@ public class MicrophoneInput : MonoBehaviour
         // Wysoki ton -> nudge + cooldown
         if (pitch > highPitchThreshold && Time.time >= nextPitchTime)
         {
-            Vector3 preferredDir = playerMovement.inputDir;
-
             Debug.Log("Wysoki ton -> krok!");
-            playerMovement.Step(stepDistanceOnHighPitch, preferredDir);
+            playerMovement.Step(stepDistanceOnHighPitch);
 
             nextPitchTime = Time.time + pitchCooldown;
         }
