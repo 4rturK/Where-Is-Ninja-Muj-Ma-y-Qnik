@@ -85,6 +85,15 @@ public class BasicAttack
 
         }
     }
+
+    public virtual void Trigger()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        manager.attackCooldowns[keyCode] = cooldown;
+        animator.SetTrigger("Melee1");
+        particle?.Play();
+    }
 }
 
 public class ContinuousAttack : BasicAttack
@@ -116,6 +125,28 @@ public class ContinuousAttack : BasicAttack
                 particle.Stop();
             }
         }
+    }
+
+    public void StartCast()
+    {
+        animator.SetBool("CastingContinuousSpell1", true);
+        particle?.Play();
+    }
+
+    public void StopCast(bool applyCooldown)
+    {
+        animator.SetBool("CastingContinuousSpell1", false);
+        particle?.Stop();
+
+        if (applyCooldown)
+            manager.attackCooldowns[keyCode] = cooldown;
+    }
+
+    public override void Trigger()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        manager.TriggerContinuousVoice(this);
     }
 }
 
@@ -151,6 +182,22 @@ public class RangedAttack : BasicAttack
             }
         }
     }
+
+    public override void Trigger()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        manager.attackCooldowns[keyCode] = cooldown;
+        animator.SetTrigger("CrossbowShoot");
+
+        if (projectilePrefab != null && firePoint != null)
+        {
+            GameObject arrow = UnityEngine.Object.Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+            Rigidbody rb = arrow.GetComponent<Rigidbody>();
+            if (rb != null)
+                rb.AddRelativeForce(Vector3.forward * shotPower, ForceMode.Impulse);
+        }
+    }
 }
 
 
@@ -182,6 +229,23 @@ public class BuildCast : BasicAttack
                 manager.attackCooldowns[keyCode] = data.cooldown;
         }
     }
+
+    public override void Trigger()
+    {
+        if (manager.attackCooldowns[keyCode] > 0f) return;
+
+        manager.attackCooldowns[keyCode] = cooldown;
+        animator.SetTrigger("CastingSpell1");
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Ground")))
+        {
+            UnityEngine.Object.Instantiate(prefab, hit.point, animator.transform.rotation);
+        }
+
+        if (manager.allAttacks.TryGetValue(attackName, out var data))
+            manager.attackCooldowns[keyCode] = data.cooldown;
+    }
 }
 
 public class AttacksManager : MonoBehaviour 
@@ -194,6 +258,12 @@ public class AttacksManager : MonoBehaviour
     {
         Magic,
         Crossbow
+    }
+
+    public enum AttackControlMode
+    {
+        Normal,
+        Voice
     }
 
     [Header("Weapon Settings")]
@@ -246,6 +316,13 @@ public class AttacksManager : MonoBehaviour
     public ManagerGame gameManager;
     public Animator animator;
 
+    [Header("Attack Control Mode")]
+    public AttackControlMode attackControlMode = AttackControlMode.Normal;
+    public KeyCode toggleAttackModeKey = KeyCode.V;
+
+    [Tooltip("D³ugoœæ 'pulsu' dla continuous w trybie Voice (sekundy, realtime)")]
+    public float voiceContinuousDuration = 0.25f;
+
     void Awake()
     {
         LoadAttackConfigs();
@@ -264,10 +341,21 @@ public class AttacksManager : MonoBehaviour
     }
     void Update()
     {
-        if(gameManager.gameLoop)
-        {
-            RotateToMouse();
+        if (!gameManager.gameLoop) return;
 
+        if (Input.GetKeyDown(toggleAttackModeKey))
+        {
+            attackControlMode = (attackControlMode == AttackControlMode.Normal)
+                ? AttackControlMode.Voice
+                : AttackControlMode.Normal;
+
+            Debug.Log("Attack mode: " + attackControlMode);
+        }
+
+        RotateToMouse();
+
+        if (attackControlMode == AttackControlMode.Normal)
+        {
             if (currentWeapon == WeaponMode.Magic)
             {
                 leftClickAttack.onUpdateFunc();
@@ -279,39 +367,28 @@ public class AttacksManager : MonoBehaviour
             {
                 crossbowAttack?.onUpdateFunc();
             }
+        }
 
-            foreach (var key in attackCooldowns.Keys.ToList())
-            {
-                if (attackCooldowns[key] > 0f)
-                    attackCooldowns[key] -= Time.deltaTime;
-                string waitingTime = attackCooldowns[key] <= 0 ? "" : (attackCooldowns[key]).ToString("0.#");
-                switch (key)
-                {
-                    case KeyCode.Mouse0:
-                        cooldownTextLeft.SetText(waitingTime);
-                        break;
-                    case KeyCode.Mouse1:
-                        cooldownTextRight.SetText(waitingTime);
-                        break;
-                    case KeyCode.Mouse4:
-                        cooldownTextAdd1.SetText(waitingTime);
-                        break;
-                    case KeyCode.Mouse3:
-                        cooldownTextAdd2.SetText(waitingTime);
-                        break;
-                }
-            }
+        foreach (var key in attackCooldowns.Keys.ToList())
+        {
+            if (attackCooldowns[key] > 0f)
+                attackCooldowns[key] -= Time.deltaTime;
 
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            string waitingTime = attackCooldowns[key] <= 0 ? "" : (attackCooldowns[key]).ToString("0.#");
+            switch (key)
             {
-                SwitchWeapon(WeaponMode.Magic);
-            }
-                
-            if (Input.GetKeyDown(KeyCode.Alpha2)) 
-            { 
-                SwitchWeapon(WeaponMode.Crossbow);  
+                case KeyCode.Mouse0: cooldownTextLeft.SetText(waitingTime); break;
+                case KeyCode.Mouse1: cooldownTextRight.SetText(waitingTime); break;
+                case KeyCode.Mouse4: cooldownTextAdd1.SetText(waitingTime); break;
+                case KeyCode.Mouse3: cooldownTextAdd2.SetText(waitingTime); break;
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            SwitchWeapon(WeaponMode.Magic);
+        
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+            SwitchWeapon(WeaponMode.Crossbow);
     }
 
     private Sprite LoadAttackIcon(string attackName)
@@ -434,5 +511,29 @@ public class AttacksManager : MonoBehaviour
                 animator.SetBool("CrossbowEquipped", true);
                 break;
         }
+    }
+
+    public void TriggerPrimaryAttackVoice()
+    {
+        if (!gameManager.gameLoop) return;
+        if (attackControlMode != AttackControlMode.Voice) return;
+
+        if (currentWeapon == WeaponMode.Magic)
+            leftClickAttack?.Trigger();
+        else if (currentWeapon == WeaponMode.Crossbow)
+            crossbowAttack?.Trigger();
+    }
+
+    // wywo³ywane przez ContinuousAttack.Trigger()
+    public void TriggerContinuousVoice(ContinuousAttack atk)
+    {
+        StartCoroutine(ContinuousVoicePulse(atk));
+    }
+
+    private IEnumerator ContinuousVoicePulse(ContinuousAttack atk)
+    {
+        atk.StartCast();
+        yield return new WaitForSecondsRealtime(voiceContinuousDuration);
+        atk.StopCast(true);
     }
 }

@@ -11439,6 +11439,7 @@ MonoBehaviour:
   pitchCooldown: 0.1
   loudCooldown: 1
   playerMovement: {fileID: 924727273}
+  attacksManager: {fileID: 1588572639}
   MicrophoneDevice: 
 --- !u!114 &1588572646
 MonoBehaviour:

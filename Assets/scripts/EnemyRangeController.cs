@@ -128,7 +128,7 @@ public class EnemyRangeController : MonoBehaviour
                     Attack();
                     attackTimer = reloadTime;
                 }
-                UnityEngine.Debug.Log($"Dist={distanceToTarget:F2} isFacingTarget={isFacingTarget} attacktimer={attackTimer}");
+               // UnityEngine.Debug.Log($"Dist={distanceToTarget:F2} isFacingTarget={isFacingTarget} attacktimer={attackTimer}");
             }
 
             animator.SetFloat("Velocity", velocity.magnitude, 0.1f, Time.deltaTime);

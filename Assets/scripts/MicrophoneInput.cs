@@ -26,6 +26,7 @@ public class MicrophoneInput : MonoBehaviour
 
     [Header("Powi¹zania")]
     public PlayerMovement3D playerMovement;
+    public AttacksManager attacksManager;
 
     [Header("Urz¹dzenie mikrofonowe (tylko do podgl¹du)")]
     [SerializeField] private string MicrophoneDevice = "";
@@ -198,11 +199,10 @@ public class MicrophoneInput : MonoBehaviour
         // --- REARING na g³oœny dŸwiêk ---
         if (rmsValue > loudThreshold && Time.time >= nextLoudTime)
         {
-            Debug.Log("Zbyt g³oœny dŸwiêk! Rearing + PUNISH!");
-            if (playerMovement != null)
-            {
-                //To DO
-            }
+            Debug.Log("Za g³oœno -> PRIMARY ATTACK (LPM)!");
+            if (attacksManager != null)
+                attacksManager.TriggerPrimaryAttackVoice();
+
             nextLoudTime = Time.time + loudCooldown;
         }
 
