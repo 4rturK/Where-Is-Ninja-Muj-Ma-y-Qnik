@@ -35,9 +35,12 @@ public class MakeDamagePhysical : MonoBehaviour
             {
                 Destroy(gameObject);
             }
-            animator.SetBool("Idle", false);
-            animator.SetBool("Running", false);
-            animator.SetBool("Attack", true);
+            if (animator != null)
+            {
+                animator.SetBool("Idle", false);
+                animator.SetBool("Running", false);
+                animator.SetBool("Attack", true);
+            }
         }
     }
 }
