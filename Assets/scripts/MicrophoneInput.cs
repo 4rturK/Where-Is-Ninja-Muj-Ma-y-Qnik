@@ -199,11 +199,11 @@ public class MicrophoneInput : MonoBehaviour
         // --- REARING na g³oœny dŸwiêk ---
         if (rmsValue > loudThreshold && Time.time >= nextLoudTime)
         {
-            Debug.Log("Za g³oœno -> PRIMARY ATTACK (LPM)!");
-            if (attacksManager != null)
-                attacksManager.TriggerPrimaryAttackVoice();
+            //Debug.Log("Za g³oœno -> PRIMARY ATTACK (LPM)!");
+            //if (attacksManager != null)
+            //    attacksManager.TriggerPrimaryAttackVoice();
 
-            nextLoudTime = Time.time + loudCooldown;
+            //nextLoudTime = Time.time + loudCooldown;
         }
 
         pitch = DetectPitch();

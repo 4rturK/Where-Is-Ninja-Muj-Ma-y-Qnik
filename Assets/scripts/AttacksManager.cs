@@ -343,14 +343,14 @@ public class AttacksManager : MonoBehaviour
     {
         if (!gameManager.gameLoop) return;
 
-        if (Input.GetKeyDown(toggleAttackModeKey))
-        {
-            attackControlMode = (attackControlMode == AttackControlMode.Normal)
-                ? AttackControlMode.Voice
-                : AttackControlMode.Normal;
+        //if (Input.GetKeyDown(toggleAttackModeKey))
+        //{
+        //    attackControlMode = (attackControlMode == AttackControlMode.Normal)
+        //        ? AttackControlMode.Voice
+        //        : AttackControlMode.Normal;
 
-            Debug.Log("Attack mode: " + attackControlMode);
-        }
+        //    Debug.Log("Attack mode: " + attackControlMode);
+        //}
 
         RotateToMouse();
 
